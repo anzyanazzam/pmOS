@@ -28,25 +28,23 @@ jobs:
           
           while True:
               index = child.expect([
-                  r"Work path[^:]*:\s*",
-                  r"pmaports.*?path[^:]*:\s*",
-                  r"Channel[^:]*:\s*",
-                  r"Vendor[^:]*:\s*",
-                  r"Device[^:]*:\s*",
-                  r"Enable this package[^:]*:\s*",
-                  r"Username[^:]*:\s*",
-                  r"User interface[^:]*:\s*",
-                  r"Install systemd[^:]*:\s*",
-                  r"Provider[^:]*:\s*",
-                  r"Additional options.*?:\s*",
-                  r"Additional packages[^:]*:\s*",
-                  r"Change them[^:]*:\s*",
-                  r"Extra free space[^:]*:\s*",
-                  r"Boot partition size[^:]*:\s*",
-                  r"Build non-free[^:]*:\s*",
-                  r"Continue\?[^:]*:\s*",
-                  r"Select mirror[^:]*:\s*",
-                  r"After reviewing[^:]*:\s*",
+                  r"Work path.*?\[.*?\]:\s*",
+                  r"pmaports.*?path.*?\[.*?\]:\s*",
+                  r"Channel.*?\[.*?\]:\s*",
+                  r"Vendor.*?\[.*?\]:\s*",
+                  r"Device.*?\[.*?\]:\s*",
+                  r"Enable this package.*?\[.*?\]:\s*",
+                  r"Username.*?\[.*?\]:\s*",
+                  r"User interface.*?\[.*?\]:\s*",
+                  r"Install systemd.*?\[.*?\]:\s*",
+                  r"Provider.*?\[.*?\]:\s*",
+                  r"Change them.*?\[.*?\]:\s*",
+                  r"Extra packages.*?\[.*?\]:\s*",
+                  r"timezone.*?\[.*?\]:\s*",
+                  r"Locale.*?\[.*?\]:\s*",
+                  r"Continue\?.*?\[.*?\]:\s*",
+                  r"mirror.*?\[.*?\]:\s*",
+                  r"After reviewing.*?\[.*?\]:\s*",
                   pexpect.EOF,
                   pexpect.TIMEOUT
               ], timeout=300)
@@ -61,17 +59,15 @@ jobs:
               elif index == 7: child.sendline("console")
               elif index == 8: child.sendline("")
               elif index == 9: child.sendline("")
-              elif index == 10: child.sendline("")
+              elif index == 10: child.sendline("n")
               elif index == 11: child.sendline("networkmanager,bluez,picocom,screen,nano,postmarketos-custom-config")
-              elif index == 12: child.sendline("n")
+              elif index == 12: child.sendline("")
               elif index == 13: child.sendline("")
-              elif index == 14: child.sendline("")
-              elif index == 15: child.sendline("y")
+              elif index == 14: child.sendline("y")
+              elif index == 15: child.sendline("")
               elif index == 16: child.sendline("y")
-              elif index == 17: child.sendline("")
-              elif index == 18: child.sendline("y")
-              elif index == 19: break
-              elif index == 20:
+              elif index == 17: break
+              elif index == 18:
                   print("\n\nTIMEOUT OCCURRED!")
                   break
           EOF
