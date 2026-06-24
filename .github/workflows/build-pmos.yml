@@ -16,19 +16,51 @@ jobs:
 
       - name: Initialize pmbootstrap (Non-Interactive)
         run: |
-          echo "Initializing default config..."
-          yes "" | ./pmbootstrap/pmbootstrap.py init || true
+          pip3 install pexpect
           
-          echo "Configuring pmbootstrap via sed..."
-          sed -i 's/^vendor = .*/vendor = xiaomi/' ~/.config/pmbootstrap.cfg
-          sed -i 's/^device = .*/device = onclite/' ~/.config/pmbootstrap.cfg
-          sed -i 's/^ui = .*/ui = console/' ~/.config/pmbootstrap.cfg
-          sed -i 's/^user = .*/user = pmos/' ~/.config/pmbootstrap.cfg
-          sed -i 's/^extra_packages = .*/extra_packages = networkmanager,bluez,picocom,screen,nano,postmarketos-custom-config/' ~/.config/pmbootstrap.cfg
-          sed -i 's/^nonfree_firmware = .*/nonfree_firmware = True/' ~/.config/pmbootstrap.cfg
+          cat << 'EOF' > init_pmbootstrap.py
+          import pexpect
+          import sys
           
-          echo "Final pmbootstrap.cfg:"
-          cat ~/.config/pmbootstrap.cfg
+          child = pexpect.spawn('./pmbootstrap/pmbootstrap.py init', encoding='utf-8')
+          child.logfile = sys.stdout
+          
+          def answer(pattern, text):
+              try:
+                  child.expect(pattern, timeout=5)
+                  child.sendline(text)
+              except pexpect.TIMEOUT:
+                  pass
+          
+          answer(r"Work path.*?:\s*", "")
+          answer(r"pmaports.*?path.*?:\s*", "")
+          answer(r"Channel.*?:\s*", "")
+          answer(r"Vendor.*?:\s*", "xiaomi")
+          answer(r"Device.*?:\s*", "onclite")
+          answer(r"Continue\?.*?:\s*", "y") # Archived warning
+          answer(r"Enable this package.*?:\s*", "y") # If it asks
+          answer(r"Username.*?:\s*", "pmos")
+          answer(r"User interface.*?:\s*", "console")
+          answer(r"Install systemd.*?:\s*", "")
+          answer(r"Provider.*?:\s*", "") # audio
+          answer(r"Provider.*?:\s*", "") # wifi
+          answer(r"Provider.*?:\s*", "") # usb-moded
+          answer(r"Change them.*?:\s*", "n")
+          answer(r"Extra packages.*?:\s*", "networkmanager,bluez,picocom,screen,nano,postmarketos-custom-config")
+          answer(r"timezone.*?:\s*", "GMT")
+          answer(r"Use this timezone.*?:\s*", "y")
+          answer(r"Locale.*?:\s*", "")
+          answer(r"Continue\?.*?:\s*", "y") # Locale warning
+          answer(r"mirror.*?:\s*", "")
+          answer(r"After reviewing.*?:\s*", "y")
+          
+          try:
+              child.expect(pexpect.EOF, timeout=120)
+          except pexpect.TIMEOUT:
+              print("\n\nTIMEOUT OCCURRED AT END!")
+          EOF
+          
+          python3 init_pmbootstrap.py
           
           ./pmbootstrap/pmbootstrap.py update
 
