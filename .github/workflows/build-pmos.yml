@@ -28,23 +28,24 @@ jobs:
           
           while True:
               index = child.expect([
-                  r"Location of the 'work' path",
-                  r"Location of the 'pmaports' path",
-                  r"Channel",
-                  r"Vendor",
-                  r"Device",
-                  r"Enable this package",
-                  r"Username",
-                  r"User interface",
-                  r"Additional options",
-                  r"Additional packages",
-                  r"Change them",
-                  r"Extra free space",
-                  r"Boot partition size",
-                  r"Build non-free",
-                  r"WARNING",
-                  r"Select mirror",
-                  r"After reviewing",
+                  r"Location of the 'work' path.*?:",
+                  r"Location of the 'pmaports' path.*?:",
+                  r"Channel.*?:",
+                  r"Vendor.*?:",
+                  r"Device.*?:",
+                  r"Enable this package.*?:",
+                  r"Username.*?:",
+                  r"User interface.*?:",
+                  r"Additional options.*?:",
+                  r"Additional packages.*?:",
+                  r"Change them.*?\?",
+                  r"Extra free space.*?:",
+                  r"Boot partition size.*?:",
+                  r"Build non-free.*?\?",
+                  r"Continue\? \(y/n\).*?:",
+                  r"Select mirror.*?:",
+                  r"After reviewing.*?:",
+                  r"Provider.*?:",
                   pexpect.EOF,
                   pexpect.TIMEOUT
               ], timeout=300)
@@ -66,8 +67,9 @@ jobs:
               elif index == 14: child.sendline("y")
               elif index == 15: child.sendline("1")
               elif index == 16: child.sendline("y")
-              elif index == 17: break
-              elif index == 18:
+              elif index == 17: child.sendline("")
+              elif index == 18: break
+              elif index == 19:
                   print("\n\nTIMEOUT OCCURRED!")
                   break
           EOF
