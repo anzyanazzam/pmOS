@@ -16,13 +16,42 @@ jobs:
 
       - name: Initialize pmbootstrap
         run: |
-          echo "" | ./pmbootstrap/pmbootstrap.py init || true
+          mkdir -p ~/.config
+          mkdir -p ~/.local/var/pmbootstrap/cache_git
+          git clone https://gitlab.postmarketos.org/postmarketOS/pmaports.git ~/.local/var/pmbootstrap/cache_git/pmaports
           
-          # Konfigurasi pmbootstrap
-          sed -i 's/vendor=.*/vendor=xiaomi/' ~/.config/pmbootstrap.cfg
-          sed -i 's/device=.*/device=onclite/' ~/.config/pmbootstrap.cfg
-          sed -i 's/ui=.*/ui=console/' ~/.config/pmbootstrap.cfg
-          sed -i 's/extra_packages=.*/extra_packages=networkmanager,bluez,picocom,screen,nano,postmarketos-custom-config/' ~/.config/pmbootstrap.cfg
+          cat << 'EOF' > ~/.config/pmbootstrap.cfg
+          [pmbootstrap]
+          aports = /home/runner/.local/var/pmbootstrap/cache_git/pmaports
+          ccache_size = 5G
+          is_default_channel = False
+          device = onclite
+          extra_packages = networkmanager,bluez,picocom,screen,nano,postmarketos-custom-config
+          hostname =
+          build_pkgs_on_install = True
+          jobs = 5
+          kernel = default
+          keymap =
+          locale = en_US.UTF-8
+          mirror_alpine = http://dl-cdn.alpinelinux.org/alpine/
+          mirrors_postmarketos = http://mirror.postmarketos.org/postmarketos/
+          nonfree_firmware = True
+          nonfree_userland = False
+          qemu_redir_stdio = False
+          ssh_keys = False
+          ssh_key_glob = ~/.ssh/id_*.pub
+          timezone = GMT
+          ui = console
+          ui_extras = False
+          user = pmos
+          vendor = xiaomi
+          work = /home/runner/.local/var/pmbootstrap
+          boot_size = 256
+          extra_space = 0
+          systemd = default
+
+          [providers]
+          EOF
           
           ./pmbootstrap/pmbootstrap.py update
 
