@@ -47,7 +47,7 @@ jobs:
                   r"After reviewing",
                   pexpect.EOF,
                   pexpect.TIMEOUT
-              ], timeout=20)
+              ], timeout=300)
               
               if index == 0: child.sendline("")
               elif index == 1: child.sendline("")
