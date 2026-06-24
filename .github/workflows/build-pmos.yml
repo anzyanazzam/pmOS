@@ -12,11 +12,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y python3 python3-pip git openssl openssh-client
-          pip3 install --user pmbootstrap
+          git clone https://gitlab.postmarketos.org/postmarketOS/pmbootstrap.git
 
       - name: Initialize pmbootstrap
         run: |
-          echo "" | ~/.local/bin/pmbootstrap init || true
+          echo "" | ./pmbootstrap/pmbootstrap.py init || true
           
           # Konfigurasi pmbootstrap
           sed -i 's/vendor=.*/vendor=xiaomi/' ~/.config/pmbootstrap.cfg
@@ -24,7 +24,7 @@ jobs:
           sed -i 's/ui=.*/ui=console/' ~/.config/pmbootstrap.cfg
           sed -i 's/extra_packages=.*/extra_packages=networkmanager,bluez,picocom,screen,nano,postmarketos-custom-config/' ~/.config/pmbootstrap.cfg
           
-          ~/.local/bin/pmbootstrap update
+          ./pmbootstrap/pmbootstrap.py update
 
       - name: Create Custom Config Package
         run: |
@@ -78,17 +78,17 @@ jobs:
           chmod +x ~/.local/var/pmbootstrap/cache_git/pmaports/main/postmarketos-custom-config/postmarketos-custom-config.post-install
 
           # Build custom package
-          ~/.local/bin/pmbootstrap build postmarketos-custom-config
+          ./pmbootstrap/pmbootstrap.py build postmarketos-custom-config
 
       - name: Build Android Recovery Zip
         run: |
           # Build zip dengan password "pmOS!1234" (kita tidak bisa pakai username 'root', jadi kita buat username 'pmos')
-          ~/.local/bin/pmbootstrap install --user pmos --password "pmOS!1234" --android-recovery-zip
+          ./pmbootstrap/pmbootstrap.py install --user pmos --password "pmOS!1234" --android-recovery-zip
 
       - name: Export and Upload Artifact
         run: |
           mkdir -p /tmp/pmos-export
-          ~/.local/bin/pmbootstrap export --out=/tmp/pmos-export
+          ./pmbootstrap/pmbootstrap.py export --out=/tmp/pmos-export
           
       - name: Upload Recovery Zip
         uses: actions/upload-artifact@v4
