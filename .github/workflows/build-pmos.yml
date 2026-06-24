@@ -1,0 +1,97 @@
+name: Build postmarketOS
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-pip git openssl openssh-client
+          pip3 install --user pmbootstrap
+
+      - name: Initialize pmbootstrap
+        run: |
+          echo "" | ~/.local/bin/pmbootstrap init || true
+          
+          # Konfigurasi pmbootstrap
+          sed -i 's/vendor=.*/vendor=xiaomi/' ~/.config/pmbootstrap.cfg
+          sed -i 's/device=.*/device=onclite/' ~/.config/pmbootstrap.cfg
+          sed -i 's/ui=.*/ui=console/' ~/.config/pmbootstrap.cfg
+          sed -i 's/extra_packages=.*/extra_packages=networkmanager,bluez,picocom,screen,nano,postmarketos-custom-config/' ~/.config/pmbootstrap.cfg
+          
+          ~/.local/bin/pmbootstrap update
+
+      - name: Create Custom Config Package
+        run: |
+          mkdir -p ~/.local/var/pmbootstrap/cache_git/pmaports/main/postmarketos-custom-config
+          
+          cat << 'EOF' > ~/.local/var/pmbootstrap/cache_git/pmaports/main/postmarketos-custom-config/APKBUILD
+          pkgname=postmarketos-custom-config
+          pkgver=1.0
+          pkgrel=0
+          pkgdesc="Custom Configs for PMOS Hotspot and Bluetooth"
+          url="https://postmarketos.org"
+          arch="all"
+          license="GPL-3.0-or-later"
+          depends="networkmanager bluez"
+          source="PMOS.nmconnection postmarketos-custom-config.post-install"
+          
+          package() {
+            install -Dm600 "$srcdir"/PMOS.nmconnection \
+              "$pkgdir"/etc/NetworkManager/system-connections/PMOS.nmconnection
+          }
+          EOF
+          
+          cat << 'EOF' > ~/.local/var/pmbootstrap/cache_git/pmaports/main/postmarketos-custom-config/PMOS.nmconnection
+          [connection]
+          id=PMOS
+          type=wifi
+          interface-name=wlan0
+          autoconnect=true
+          autoconnect-priority=-999
+
+          [wifi]
+          mode=ap
+          ssid=PMOS
+
+          [wifi-security]
+          key-mgmt=wpa-psk
+          psk=12345678
+
+          [ipv4]
+          method=shared
+
+          [ipv6]
+          method=ignore
+          EOF
+          
+          cat << 'EOF' > ~/.local/var/pmbootstrap/cache_git/pmaports/main/postmarketos-custom-config/postmarketos-custom-config.post-install
+          #!/bin/sh
+          # Enable bluetooth service automatically on boot
+          rc-update add bluetooth default || true
+          EOF
+          chmod +x ~/.local/var/pmbootstrap/cache_git/pmaports/main/postmarketos-custom-config/postmarketos-custom-config.post-install
+
+          # Build custom package
+          ~/.local/bin/pmbootstrap build postmarketos-custom-config
+
+      - name: Build Android Recovery Zip
+        run: |
+          # Build zip dengan password "pmOS!1234" (kita tidak bisa pakai username 'root', jadi kita buat username 'pmos')
+          ~/.local/bin/pmbootstrap install --user pmos --password "pmOS!1234" --android-recovery-zip
+
+      - name: Export and Upload Artifact
+        run: |
+          mkdir -p /tmp/pmos-export
+          ~/.local/bin/pmbootstrap export --out=/tmp/pmos-export
+          
+      - name: Upload Recovery Zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: postmarketos-xiaomi-onclite-recovery
+          path: /tmp/pmos-export/pmos-xiaomi-onclite.zip
