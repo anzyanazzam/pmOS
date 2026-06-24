@@ -142,11 +142,10 @@ jobs:
 
       - name: Export and Upload Artifact
         run: |
-          mkdir -p /tmp/pmos-export
-          ./pmbootstrap/pmbootstrap.py export --out=/tmp/pmos-export
+          ./pmbootstrap/pmbootstrap.py export
           
       - name: Upload Recovery Zip
         uses: actions/upload-artifact@v4
         with:
           name: postmarketos-xiaomi-onclite-recovery
-          path: /tmp/pmos-export/pmos-xiaomi-onclite.zip
+          path: /tmp/postmarketOS-export/*.zip
