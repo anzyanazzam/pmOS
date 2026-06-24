@@ -34,7 +34,7 @@ jobs:
           
           answer(r"Work path.*?:\s*", "")
           answer(r"pmaports.*?path.*?:\s*", "")
-          answer(r"Channel.*?:\s*", "")
+          answer(r"Channel.*?:\s*", "v24.06")
           answer(r"Vendor.*?:\s*", "xiaomi")
           answer(r"Device.*?:\s*", "onclite")
           answer(r"Continue\?.*?:\s*", "y") # Archived warning
