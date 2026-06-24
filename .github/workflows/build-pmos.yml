@@ -28,26 +28,25 @@ jobs:
           
           while True:
               index = child.expect([
-                  r"Work path \[.*?\]: ",
-                  r"pmaports.*?path \[.*?\]: ",
-                  r"Channel \[.*?\]: ",
-                  r"Vendor \[.*?\]: ",
-                  r"Device \[.*?\]: ",
-                  r"Enable this package\? \(y/n\) \[.*?\]: ",
-                  r"Username \[.*?\]: ",
-                  r"User interface \[.*?\]: ",
-                  r"Install systemd\? \(default/always/never\) \[.*?\]: ",
-                  r"Provider \[.*?\]: ",
-                  r"Additional options: \[.*?\]: ",
-                  r"Additional packages \[.*?\]: ",
-                  r"Change them\? \(y/n\) \[.*?\]: ",
-                  r"Extra free space \[.*?\]: ",
-                  r"Boot partition size \[.*?\]: ",
-                  r"Build non-free firmware \(y/n\) \[.*?\]: ",
-                  r"Continue\? \(y/n\) \[.*?\]: ",
-                  r"Select mirror \[.*?\]: ",
-                  r"After reviewing.*? \(y/n\) \[.*?\]: ",
-                  r"WARNING.*?Continue\? \(y/n\) \[.*?\]: ",
+                  r"Work path[^:]*:\s*",
+                  r"pmaports.*?path[^:]*:\s*",
+                  r"Channel[^:]*:\s*",
+                  r"Vendor[^:]*:\s*",
+                  r"Device[^:]*:\s*",
+                  r"Enable this package[^:]*:\s*",
+                  r"Username[^:]*:\s*",
+                  r"User interface[^:]*:\s*",
+                  r"Install systemd[^:]*:\s*",
+                  r"Provider[^:]*:\s*",
+                  r"Additional options.*?:\s*",
+                  r"Additional packages[^:]*:\s*",
+                  r"Change them[^:]*:\s*",
+                  r"Extra free space[^:]*:\s*",
+                  r"Boot partition size[^:]*:\s*",
+                  r"Build non-free[^:]*:\s*",
+                  r"Continue\?[^:]*:\s*",
+                  r"Select mirror[^:]*:\s*",
+                  r"After reviewing[^:]*:\s*",
                   pexpect.EOF,
                   pexpect.TIMEOUT
               ], timeout=300)
@@ -71,9 +70,8 @@ jobs:
               elif index == 16: child.sendline("y")
               elif index == 17: child.sendline("")
               elif index == 18: child.sendline("y")
-              elif index == 19: child.sendline("y")
-              elif index == 20: break
-              elif index == 21:
+              elif index == 19: break
+              elif index == 20:
                   print("\n\nTIMEOUT OCCURRED!")
                   break
           EOF
