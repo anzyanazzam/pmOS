@@ -14,69 +14,21 @@ jobs:
           sudo apt-get install -y python3 python3-pip git openssl openssh-client
           git clone https://gitlab.postmarketos.org/postmarketOS/pmbootstrap.git
 
-      - name: Initialize pmbootstrap
+      - name: Initialize pmbootstrap (Non-Interactive)
         run: |
-          pip3 install pexpect
+          echo "Initializing default config..."
+          yes "" | ./pmbootstrap/pmbootstrap.py init || true
           
-          cat << 'EOF' > init_pmbootstrap.py
-          import pexpect
-          import sys
+          echo "Configuring pmbootstrap via sed..."
+          sed -i 's/^vendor = .*/vendor = xiaomi/' ~/.config/pmbootstrap.cfg
+          sed -i 's/^device = .*/device = onclite/' ~/.config/pmbootstrap.cfg
+          sed -i 's/^ui = .*/ui = console/' ~/.config/pmbootstrap.cfg
+          sed -i 's/^user = .*/user = pmos/' ~/.config/pmbootstrap.cfg
+          sed -i 's/^extra_packages = .*/extra_packages = networkmanager,bluez,picocom,screen,nano,postmarketos-custom-config/' ~/.config/pmbootstrap.cfg
+          sed -i 's/^nonfree_firmware = .*/nonfree_firmware = True/' ~/.config/pmbootstrap.cfg
           
-          # We run pmbootstrap init and answer prompts
-          child = pexpect.spawn('./pmbootstrap/pmbootstrap.py init', encoding='utf-8')
-          child.logfile = sys.stdout
-          
-          while True:
-              index = child.expect([
-                  r"Work path[^:]*:\s*",
-                  r"pmaports.*?path[^:]*:\s*",
-                  r"Channel[^:]*:\s*",
-                  r"Vendor[^:]*:\s*",
-                  r"Device[^:]*:\s*",
-                  r"Enable this package[^:]*:\s*",
-                  r"Username[^:]*:\s*",
-                  r"User interface[^:]*:\s*",
-                  r"Install systemd[^:]*:\s*",
-                  r"Provider[^:]*:\s*",
-                  r"Additional options.*?:\s*",
-                  r"Additional packages[^:]*:\s*",
-                  r"Change them[^:]*:\s*",
-                  r"Extra free space[^:]*:\s*",
-                  r"Boot partition size[^:]*:\s*",
-                  r"Build non-free[^:]*:\s*",
-                  r"Continue\?[^:]*:\s*",
-                  r"Select mirror[^:]*:\s*",
-                  r"After reviewing[^:]*:\s*",
-                  pexpect.EOF,
-                  pexpect.TIMEOUT
-              ], timeout=300)
-              
-              if index == 0: child.sendline("")
-              elif index == 1: child.sendline("")
-              elif index == 2: child.sendline("")
-              elif index == 3: child.sendline("xiaomi")
-              elif index == 4: child.sendline("onclite")
-              elif index == 5: child.sendline("y")
-              elif index == 6: child.sendline("pmos")
-              elif index == 7: child.sendline("console")
-              elif index == 8: child.sendline("")
-              elif index == 9: child.sendline("")
-              elif index == 10: child.sendline("")
-              elif index == 11: child.sendline("networkmanager,bluez,picocom,screen,nano,postmarketos-custom-config")
-              elif index == 12: child.sendline("n")
-              elif index == 13: child.sendline("")
-              elif index == 14: child.sendline("")
-              elif index == 15: child.sendline("y")
-              elif index == 16: child.sendline("y")
-              elif index == 17: child.sendline("")
-              elif index == 18: child.sendline("y")
-              elif index == 19: break
-              elif index == 20:
-                  print("\n\nTIMEOUT OCCURRED!")
-                  break
-          EOF
-          
-          python3 init_pmbootstrap.py
+          echo "Final pmbootstrap.cfg:"
+          cat ~/.config/pmbootstrap.cfg
           
           ./pmbootstrap/pmbootstrap.py update
 
@@ -132,17 +84,17 @@ jobs:
           chmod +x ~/.local/var/pmbootstrap/cache_git/pmaports/main/postmarketos-custom-config/postmarketos-custom-config.post-install
 
           # Build custom package
-          ./pmbootstrap/pmbootstrap.py checksum postmarketos-custom-config
-          ./pmbootstrap/pmbootstrap.py build postmarketos-custom-config
+          yes "y" | ./pmbootstrap/pmbootstrap.py checksum postmarketos-custom-config
+          yes "y" | ./pmbootstrap/pmbootstrap.py build postmarketos-custom-config
 
       - name: Build Android Recovery Zip
         run: |
           # Build zip dengan password "pmOS!1234" (kita tidak bisa pakai username 'root', jadi kita buat username 'pmos')
-          ./pmbootstrap/pmbootstrap.py install --password "pmOS!1234" --android-recovery-zip
+          yes "y" | ./pmbootstrap/pmbootstrap.py install --password "pmOS!1234" --android-recovery-zip
 
       - name: Export and Upload Artifact
         run: |
-          ./pmbootstrap/pmbootstrap.py export
+          yes "y" | ./pmbootstrap/pmbootstrap.py export
           
       - name: Upload Recovery Zip
         uses: actions/upload-artifact@v4
