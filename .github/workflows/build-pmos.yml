@@ -28,24 +28,26 @@ jobs:
           
           while True:
               index = child.expect([
-                  r"Location of the 'work' path.*?:",
-                  r"Location of the 'pmaports' path.*?:",
-                  r"Channel.*?:",
-                  r"Vendor.*?:",
-                  r"Device.*?:",
-                  r"Enable this package.*?:",
-                  r"Username.*?:",
-                  r"User interface.*?:",
-                  r"Additional options.*?:",
-                  r"Additional packages.*?:",
-                  r"Change them.*?\?",
-                  r"Extra free space.*?:",
-                  r"Boot partition size.*?:",
-                  r"Build non-free.*?\?",
-                  r"Continue\? \(y/n\).*?:",
-                  r"Select mirror.*?:",
-                  r"After reviewing.*?:",
-                  r"Provider.*?:",
+                  r"Work path \[.*?\]: ",
+                  r"pmaports.*?path \[.*?\]: ",
+                  r"Channel \[.*?\]: ",
+                  r"Vendor \[.*?\]: ",
+                  r"Device \[.*?\]: ",
+                  r"Enable this package\? \(y/n\) \[.*?\]: ",
+                  r"Username \[.*?\]: ",
+                  r"User interface \[.*?\]: ",
+                  r"Install systemd\? \(default/always/never\) \[.*?\]: ",
+                  r"Provider \[.*?\]: ",
+                  r"Additional options: \[.*?\]: ",
+                  r"Additional packages \[.*?\]: ",
+                  r"Change them\? \(y/n\) \[.*?\]: ",
+                  r"Extra free space \[.*?\]: ",
+                  r"Boot partition size \[.*?\]: ",
+                  r"Build non-free firmware \(y/n\) \[.*?\]: ",
+                  r"Continue\? \(y/n\) \[.*?\]: ",
+                  r"Select mirror \[.*?\]: ",
+                  r"After reviewing.*? \(y/n\) \[.*?\]: ",
+                  r"WARNING.*?Continue\? \(y/n\) \[.*?\]: ",
                   pexpect.EOF,
                   pexpect.TIMEOUT
               ], timeout=300)
@@ -59,17 +61,19 @@ jobs:
               elif index == 6: child.sendline("pmos")
               elif index == 7: child.sendline("console")
               elif index == 8: child.sendline("")
-              elif index == 9: child.sendline("networkmanager,bluez,picocom,screen,nano,postmarketos-custom-config")
-              elif index == 10: child.sendline("n")
-              elif index == 11: child.sendline("")
-              elif index == 12: child.sendline("")
-              elif index == 13: child.sendline("y")
-              elif index == 14: child.sendline("y")
-              elif index == 15: child.sendline("1")
+              elif index == 9: child.sendline("")
+              elif index == 10: child.sendline("")
+              elif index == 11: child.sendline("networkmanager,bluez,picocom,screen,nano,postmarketos-custom-config")
+              elif index == 12: child.sendline("n")
+              elif index == 13: child.sendline("")
+              elif index == 14: child.sendline("")
+              elif index == 15: child.sendline("y")
               elif index == 16: child.sendline("y")
               elif index == 17: child.sendline("")
-              elif index == 18: break
-              elif index == 19:
+              elif index == 18: child.sendline("y")
+              elif index == 19: child.sendline("y")
+              elif index == 20: break
+              elif index == 21:
                   print("\n\nTIMEOUT OCCURRED!")
                   break
           EOF
