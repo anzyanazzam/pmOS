@@ -134,6 +134,7 @@ jobs:
           chmod +x ~/.local/var/pmbootstrap/cache_git/pmaports/main/postmarketos-custom-config/postmarketos-custom-config.post-install
 
           # Build custom package
+          ./pmbootstrap/pmbootstrap.py checksum postmarketos-custom-config
           ./pmbootstrap/pmbootstrap.py build postmarketos-custom-config
 
       - name: Build Android Recovery Zip
