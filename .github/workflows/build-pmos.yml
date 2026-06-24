@@ -16,22 +16,59 @@ jobs:
 
       - name: Initialize pmbootstrap
         run: |
-          mkdir -p ~/.config
-          rm -f ~/.config/pmbootstrap.cfg
+          pip3 install pexpect
           
-          # Use pmbootstrap config to generate the correct format
-          ./pmbootstrap/pmbootstrap.py config work /home/runner/.local/var/pmbootstrap
+          cat << 'EOF' > init_pmbootstrap.py
+          import pexpect
+          import sys
           
-          # Clone pmaports first so it knows where it is
-          mkdir -p ~/.local/var/pmbootstrap/cache_git
-          git clone https://gitlab.postmarketos.org/postmarketOS/pmaports.git ~/.local/var/pmbootstrap/cache_git/pmaports
+          # We run pmbootstrap init and answer prompts
+          child = pexpect.spawn('./pmbootstrap/pmbootstrap.py init', encoding='utf-8')
+          child.logfile = sys.stdout
           
-          ./pmbootstrap/pmbootstrap.py config aports ~/.local/var/pmbootstrap/cache_git/pmaports
-          ./pmbootstrap/pmbootstrap.py config vendor xiaomi
-          ./pmbootstrap/pmbootstrap.py config device onclite
-          ./pmbootstrap/pmbootstrap.py config ui console
-          ./pmbootstrap/pmbootstrap.py config user pmos
-          ./pmbootstrap/pmbootstrap.py config extra_packages networkmanager,bluez,picocom,screen,nano,postmarketos-custom-config
+          while True:
+              index = child.expect([
+                  r"Location of the 'work' path",
+                  r"Channel",
+                  r"Vendor",
+                  r"Device",
+                  r"Enable this package",
+                  r"Username",
+                  r"User interface",
+                  r"Additional options",
+                  r"Additional packages",
+                  r"Change them",
+                  r"Extra free space",
+                  r"Boot partition size",
+                  r"Build non-free",
+                  r"WARNING",
+                  r"Select mirror",
+                  r"After reviewing",
+                  pexpect.EOF,
+                  pexpect.TIMEOUT
+              ], timeout=20)
+              
+              if index == 0: child.sendline("")
+              elif index == 1: child.sendline("")
+              elif index == 2: child.sendline("xiaomi")
+              elif index == 3: child.sendline("onclite")
+              elif index == 4: child.sendline("y")
+              elif index == 5: child.sendline("pmos")
+              elif index == 6: child.sendline("console")
+              elif index == 7: child.sendline("")
+              elif index == 8: child.sendline("networkmanager,bluez,picocom,screen,nano,postmarketos-custom-config")
+              elif index == 9: child.sendline("n")
+              elif index == 10: child.sendline("")
+              elif index == 11: child.sendline("")
+              elif index == 12: child.sendline("y")
+              elif index == 13: child.sendline("y")
+              elif index == 14: child.sendline("1")
+              elif index == 15: child.sendline("y")
+              elif index == 16: break
+              elif index == 17: break
+          EOF
+          
+          python3 init_pmbootstrap.py
           
           ./pmbootstrap/pmbootstrap.py update
 
